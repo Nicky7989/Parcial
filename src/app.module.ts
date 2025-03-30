@@ -1,8 +1,8 @@
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { MakeupStockModule } from './src/makeup-stock/makeup-stock.module';
-import { ProductTestsModule } from './src/product-tests/product-tests.module';
+import { MakeupStockModule } from './makeup-stock/makeup-stock.module';
+import { ProductTestsModule } from './product-tests/product-tests.module';
 import { UsersModule } from './users/users.module';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
