@@ -32,11 +32,15 @@ export class User {
   )
   password: string;
 
-  @Column({ type: 'enum', enum: UserRole, default: UserRole.CLIENT })
+  @Column({ type: 'enum', 
+    enum: UserRole, 
+    default: UserRole.CLIENT 
+  })
   role: UserRole;
   
+  // Para conectar users con orders para purchase history
   @OneToMany(() => Order, (order) => order.client)
-  @Transform(({ value }) =>
+  @Transform(({ value }) =>     //Convertir en un array de id's
     Array.isArray(value) ? value.map((order: Order) => order.id) : []
   )
   purchase_history: string[];

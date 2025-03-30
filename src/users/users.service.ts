@@ -7,25 +7,27 @@ import * as bcrypt from 'bcrypt'; // Para encriptar
 import { LoginDTO } from './dto/login.dto';
 import { JwtService } from '@nestjs/jwt';
 import { JwtPayload } from 'src/interface/JwtPayload';
+import { UpdateUserDto } from './dto/update-user.dto';
 
 @Injectable()
 export class UsersService {
   constructor(
     @InjectRepository(User)
     private usersRepository: Repository<User>,
-    private jwtService: JwtService, // 🔥 Inyectamos JwtService
+    private jwtService: JwtService
   ) {}
 
   async create(createUserDto: CreateUserDto) {
     try {
       const user = this.usersRepository.create({
         ...createUserDto,
-        password: createUserDto.password ? bcrypt.hashSync(createUserDto.password, 10) : '', // 🔥 Validamos `password`
+        password: bcrypt.hashSync(createUserDto.password, 10)
       });
 
       await this.usersRepository.save(user);
       return user;
-    } catch (error) {
+    } 
+    catch (error) {
       throw new BadRequestException(error.message || 'Error creating user');
     }
   }
@@ -56,18 +58,19 @@ export class UsersService {
     return this.usersRepository.find({ relations: ['purchase_history'] });
   }
 
-  async findOne(id: string): Promise<User | null> {
+  async findOne(id: string) {
     const user = await this.usersRepository.findOne({
       where: { id },
       relations: ['purchase_history'],
     });
 
     if (!user) {
-      return null;
+      throw new NotFoundException(`User #${id} not found`);
     }
 
-    user.purchase_history = user.purchase_history.map((order: any) => order.id);
+    user.purchase_history = user.purchase_history.map((order: any) => order.id) || []; //Para asegurar que no sea nulo antes de la transformación
     return user;
+
   }
 
   async updateVIPStatus(userId: string) {
@@ -79,8 +82,16 @@ export class UsersService {
     if (!user) return;
 
     const totalSpent = user.purchase_history.reduce((sum, order: any) => sum + Number(order.total_amount), 0);
-    user.isVIP = totalSpent >= 500;  // 🔥 Si gastó más de $500, se vuelve VIP
+    user.isVIP = totalSpent >= 500;  // Si gastó más de $500, se vuelve VIP
 
     await this.usersRepository.save(user);
+  }
+
+  update(id: string, UpdateUserDto: UpdateUserDto) {
+    return `This action updates a #${id} user`;
+  }
+
+  remove(id: string) {
+    return `This action removes a #${id} user`;
   }
 }
